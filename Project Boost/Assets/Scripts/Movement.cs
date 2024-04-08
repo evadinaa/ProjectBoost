@@ -7,6 +7,12 @@ public class Movement : MonoBehaviour
 {
     [SerializeField] float mainThrust = 100f;
     [SerializeField] float rotationThrust = 200f;
+    [SerializeField] AudioClip MainEngine;
+    
+    [SerializeField] ParticleSystem MainEngineParticles;
+    [SerializeField] ParticleSystem LeftThrusterParticles;
+    [SerializeField] ParticleSystem RightThrusterParticles;
+    
     Rigidbody rb;
     AudioSource audioSource;
 
@@ -28,32 +34,76 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            rb.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime);
-            if(!audioSource.isPlaying)
-            {
-                audioSource.Play();
-            }
+            StartThrusting();
         }
         else
         {
-            audioSource.Stop();
+            StopThrusting();
         }
     }
-
+    
     void ProcessRotation()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            Debug.Log("A key pressed");
-            ApplyRotation(rotationThrust);
+            RightRotate();
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            Debug.Log("D key pressed");
-            ApplyRotation(-rotationThrust);
+            LeftRotate();
+        }
+        else
+        {
+            StopRotating();
         }
     }
 
+    void StartThrusting()
+    {
+        rb.AddRelativeForce(Vector3.up * mainThrust * Time.deltaTime);
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(MainEngine);
+        }
+
+        if (!MainEngineParticles.isPlaying)
+        {
+            MainEngineParticles.Play();
+        }
+    }
+    
+    void StopThrusting()
+    {
+        audioSource.Stop();
+        MainEngineParticles.Stop();
+    }
+    
+
+    void RightRotate()
+    {
+        Debug.Log("A key pressed");
+        ApplyRotation(rotationThrust);
+        if (!RightThrusterParticles.isPlaying)
+        {
+            RightThrusterParticles.Play();
+        }
+    }
+
+    void LeftRotate()
+    {
+        Debug.Log("D key pressed");
+        ApplyRotation(-rotationThrust);
+        if (!LeftThrusterParticles.isPlaying)
+        {
+            LeftThrusterParticles.Play();
+        }
+    }
+    
+    void StopRotating()
+    {
+        RightThrusterParticles.Stop();
+        LeftThrusterParticles.Stop();
+    }
 
     void ApplyRotation(float rotationThisFrame)
     {
